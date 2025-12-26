@@ -1,6 +1,8 @@
 /// Adapters - Implementaciones concretas de los Puertos
 /// Aquí van los repositorios reales que cumplen con los contratos definidos en los puertos
 
-pub mod persona_repository;
+mod postgres;
+pub mod mysql;
 
-pub use persona_repository::PersonaRepositoryPg;
+pub use postgres::PersonaRepositoryPg;
+pub use mysql::PersonaRepositoryMySQL;

@@ -9,7 +9,7 @@ use axum::{
 };
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::{api::persona_routes, infra::AppState};
+use crate::{api::{auth_routes, persona_routes}, infra::AppState};
 
 /// Router principal de la aplicación
 pub fn app_router(state: Arc<AppState>) -> Router {
@@ -27,8 +27,14 @@ pub fn app_router(state: Arc<AppState>) -> Router {
 
     // Combinar todas las rutas
     Router::new()
-        .merge(persona_routes())
+        .nest("/api/v1", api_routes())
         .layer(cors)
         .layer(tower_http::trace::TraceLayer::new_for_http())
         .with_state(state)
+}
+
+fn api_routes() -> Router<Arc<AppState>> {
+    Router::new()
+        .nest("/persona", persona_routes())
+        .nest("/auth", auth_routes())
 }

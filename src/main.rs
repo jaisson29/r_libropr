@@ -18,7 +18,9 @@ async fn main() {
     let pool = init_database(config.database_url.as_str())
         .await
         .expect("No se pudo inicializar la base de datos");
-    let state = Arc::new(AppState { db: pool });
+    
+    // Composition root: construir state con repos y services una sola vez
+    let state = Arc::new(AppState::new(pool, config.jwt_secret.clone()));
     let app: Router = app_router(state);
 
     let addr = format!("{}:{}", config.host, config.port);
@@ -37,10 +39,10 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn init_database(database_url: &str) -> anyhow::Result<sqlx::PgPool> {
+async fn init_database(database_url: &str) -> anyhow::Result<sqlx::MySqlPool> {
     let db = Database::new(database_url, 10).await?;
     db.ping().await?;
-    Ok(db.pool().clone())
+    Ok(db.mysql_pool().clone())
 }
 
 fn init_tracing() {

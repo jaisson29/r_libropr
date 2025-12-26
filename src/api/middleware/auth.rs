@@ -2,16 +2,16 @@ use crate::errors::AppError;
 use axum::extract::FromRequestParts;
 use jsonwebtoken::{Algorithm, DecodingKey, Validation, decode};
 use serde::{Deserialize, Serialize};
-use std::future::{Future, ready};
+use std::{fmt::Debug, future::{Future, ready}};
 
 /// Claims del JWT - Datos que se almacenan en el token
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub sub: u64,       // Subject (User ID)
+    pub sub: i64,       // Subject (User ID)
     pub exp: usize,     // Expiración
-    pub idper: u32,     // ID de la persona
+    pub idper: i64,     // ID de la persona
     pub nomper: String, // Nombre de la persona
-    pub idpef: u32,     // ID del perfil
+    pub idpef: i64,     // ID del perfil
     pub nompef: String, // Nombre del perfil
 }
 
@@ -20,9 +20,9 @@ pub struct Claims {
 /// acceder a la información del usuario autenticado
 #[derive(Debug, Clone, Serialize)]
 pub struct AuthUser {
-    pub idper: u32,     // ID de la persona
+    pub idper: i64,     // ID de la persona
     pub nomper: String, // Nombre de la persona
-    pub idpef: u32,     // ID del perfil (rol)
+    pub idpef: i64,     // ID del perfil (rol)
     pub nompef: String, // Nombre del perfil (Admin, Usuario, etc.)
 }
 
@@ -40,13 +40,13 @@ impl AuthUser {
 
 impl<S> FromRequestParts<S> for AuthUser
 where
-    S: Send + Sync,
+    S: Send + Sync + Debug,
 {
     type Rejection = AppError;
 
     fn from_request_parts(
         parts: &mut axum::http::request::Parts,
-        _state: &S,
+        state: &S,
     ) -> impl Future<Output = Result<Self, Self::Rejection>> + Send {
         let result = (|| {
             let auth_header = parts

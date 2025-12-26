@@ -1,19 +1,11 @@
 use std::sync::Arc;
 
-use axum::{
-    Router,
-    routing::{get},
-};
+use axum::{Router, routing::get};
 
 use crate::{
-    api::handlers::{
-        get_persona,
-        list_personas,
-        create_persona,
-        update_persona,
-        delete_persona,
-        get_persona_by_document,
-        get_persona_by_email,
+    api::handlers::persona::{
+        create_persona, delete_persona, get_persona, get_persona_by_document, get_persona_by_email,
+        list_personas, update_persona,
     },
     infra::AppState,
 };
@@ -27,5 +19,8 @@ pub fn persona_routes() -> Router<Arc<AppState>> {
         .route("/by-email/{emaper}", get(get_persona_by_email))
         // Rutas CRUD estándar
         .route("/", get(list_personas).post(create_persona))
-        .route("/{idper}", get(get_persona).put(update_persona).delete(delete_persona))
+        .route(
+            "/{idper}",
+            get(get_persona).put(update_persona).delete(delete_persona),
+        )
 }
