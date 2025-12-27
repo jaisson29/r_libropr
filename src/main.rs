@@ -29,20 +29,16 @@ async fn main() {
         .expect("No se pudo bindear el listener");
 
     tracing::info!("✅ Servidor corriendo en http://{}", addr);
-    tracing::info!("📚 API disponible en:");
-    tracing::info!("   - http://{}/api/v1/vehicles", addr);
-    tracing::info!("   - http://{}/api/v1/vehicles/paginated", addr);
-    tracing::info!("🏥 Health checks:");
-    tracing::info!("   - http://{}/api/v1/health", addr);
-    tracing::info!("   - http://{}/api/v1/ready", addr);
+    tracing::info!("📚 API disponible en: http://{}/api/v1", addr);
+
 
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn init_database(database_url: &str) -> anyhow::Result<sqlx::MySqlPool> {
+async fn init_database(database_url: &str) -> anyhow::Result<sqlx::PgPool> {
     let db = Database::new(database_url, 10).await?;
     db.ping().await?;
-    Ok(db.mysql_pool().clone())
+    Ok(db.pg_pool().clone())
 }
 
 fn init_tracing() {
@@ -50,7 +46,7 @@ fn init_tracing() {
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 // Usa el nombre real del crate para que el filtro funcione
-                .unwrap_or_else(|_| "libropr_rust=debug,tower_http=debug,axum=info".into()),
+                .unwrap_or_else(|_| "libropr_rust=info,tower_http=debug,axum=info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();

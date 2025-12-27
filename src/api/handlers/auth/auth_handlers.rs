@@ -8,9 +8,8 @@ use crate::{
         dtos::{LoginRequestDTO, LoginResponseDTO},
         middleware::Claims,
     },
-    core::PersonaRepository,
     errors::{AppError, AppResult},
-    infra::{AppState, adapters::PersonaRepositoryMySQL},
+    infra::AppState,
 };
 
 pub async fn login_handler(
@@ -19,8 +18,9 @@ pub async fn login_handler(
 ) -> AppResult<Json<LoginResponseDTO>> {
     // Lógica de autenticación aquí (verificación de credenciales, generación de token, etc.)
     // Por ahora, retornamos un token ficticio
-    let persona_repository = PersonaRepositoryMySQL::new(state.db.clone());
-    let persona = persona_repository
+    let persona = state
+        .repos
+        .persona
         .get_by_emaper(&payload.email)
         .await?
         .ok_or_else(|| AppError::Unauthorized("Credenciales inválidas".to_string()))?;

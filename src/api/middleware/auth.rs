@@ -34,7 +34,12 @@ impl AuthUser {
 
     /// Verifica si el usuario es administrador
     pub fn is_admin(&self) -> bool {
-        self.has_profile("Administrador") || self.has_profile("Admin")
+        self.has_profile("super_admin") || self.has_profile("admin")
+    }
+
+    /// Verifica si el usuario es super administrador
+    pub fn is_super_admin(&self) -> bool {
+        self.has_profile("super_admin")
     }
 }
 
@@ -54,6 +59,9 @@ where
                 .get(axum::http::header::AUTHORIZATION)
                 .and_then(|h| h.to_str().ok())
                 .ok_or_else(|| AppError::Unauthorized("Token no encontrado".to_string()))?;
+
+            tracing::debug!("Authorization Header: {}", auth_header);
+            tracing::debug!("State: {:?}", state);
 
             if !auth_header.starts_with("Bearer ") {
                 return Err(AppError::Unauthorized(

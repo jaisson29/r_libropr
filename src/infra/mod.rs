@@ -1,11 +1,11 @@
 pub mod adapters;
 
 use std::{sync::Arc, fmt::Debug};
-use sqlx::{MySqlPool, PgPool};
+use sqlx::PgPool;
 
 use crate::core::ports::persona::PersonaRepository;
 use crate::core::services::persona::PersonaService;
-use crate::infra::adapters::mysql::persona_repository::PersonaRepositoryMySQL;
+use crate::infra::adapters::PersonaRepositoryPg;
 
 /// Agregador de repositorios para inyección de dependencias
 pub struct Repos {
@@ -50,7 +50,7 @@ impl Clone for Services {
 #[derive(Clone, Debug)]
 pub struct AppState {
     // pub db: PgPool,
-    pub db: MySqlPool,
+    pub db: PgPool,
     pub jwt_secret: String,
     pub repos: Arc<Repos>,
     pub services: Arc<Services>,
@@ -58,9 +58,9 @@ pub struct AppState {
 
 impl AppState {
     /// Constructor que inicializa todos los repositorios y servicios una sola vez
-    pub fn new(db: MySqlPool, jwt_secret: String) -> Self {
+    pub fn new(db: PgPool, jwt_secret: String) -> Self {
         // 1. Construir repositorios
-        let persona_repo = Arc::new(PersonaRepositoryMySQL::new(db.clone())) as Arc<dyn PersonaRepository>;
+        let persona_repo = Arc::new(PersonaRepositoryPg::new(db.clone())) as Arc<dyn PersonaRepository>;
         
         let repos = Arc::new(Repos {
             persona: persona_repo.clone(),

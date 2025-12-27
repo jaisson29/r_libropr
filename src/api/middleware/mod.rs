@@ -1,3 +1,3 @@
 mod auth;
 
-pub use auth::{AuthUser, Claims};
+pub use auth::{Claims, AuthUser};
