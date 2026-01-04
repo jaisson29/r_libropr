@@ -1,3 +1,2 @@
-mod auth;
+mod auth_middleware;
 
-pub use auth::{Claims, AuthUser};

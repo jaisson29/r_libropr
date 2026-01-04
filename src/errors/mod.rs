@@ -46,12 +46,30 @@ impl IntoResponse for AppError {
                     "Error de base de datos".to_string(),
                 )
             }
-            AppError::NotImplemented(msg) => (StatusCode::NOT_IMPLEMENTED, msg),
-            AppError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
-            AppError::NotFound(msg) => (StatusCode::NOT_FOUND, msg),
-            AppError::Unauthorized(msg) => (StatusCode::UNAUTHORIZED, msg),
-            AppError::Forbidden(msg) => (StatusCode::FORBIDDEN, msg),
-            AppError::Validation(msg) => (StatusCode::BAD_REQUEST, msg),
+            AppError::NotImplemented(msg) => {
+                tracing::warn!("Not implemented: {}", msg);
+                (StatusCode::NOT_IMPLEMENTED, msg)
+            }
+            AppError::BadRequest(msg) => {
+                tracing::warn!("Bad request: {}", msg);
+                (StatusCode::BAD_REQUEST, msg)
+            }
+            AppError::NotFound(msg) => {
+                tracing::warn!("Not found: {}", msg);
+                (StatusCode::NOT_FOUND, msg)
+            }
+            AppError::Unauthorized(msg) => {
+                tracing::warn!("Unauthorized: {}", msg);
+                (StatusCode::UNAUTHORIZED, msg)
+            }
+            AppError::Forbidden(msg) => {
+                tracing::warn!("Forbidden: {}", msg);
+                (StatusCode::FORBIDDEN, msg)
+            }
+            AppError::Validation(msg) => {
+                tracing::warn!("Validation error: {}", msg);
+                (StatusCode::BAD_REQUEST, msg)
+            }
             AppError::Internal(msg) => {
                 tracing::error!("Internal error: {}", msg);
                 (

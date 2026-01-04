@@ -4,12 +4,7 @@ use axum::{Json, extract::State};
 use jsonwebtoken::Header;
 
 use crate::{
-    api::{
-        dtos::{LoginRequestDTO, LoginResponseDTO},
-        middleware::Claims,
-    },
-    errors::{AppError, AppResult},
-    infra::AppState,
+    api::dtos::{LoginRequestDTO, LoginResponseDTO}, domain::Claims, errors::{AppError, AppResult}, infra::AppState
 };
 
 pub async fn login_handler(
@@ -31,7 +26,8 @@ pub async fn login_handler(
         idper: persona.idper,
         nomper: persona.nomper,
         idpef: persona.idpef,
-        nompef: persona.idpef.to_string(), // Aquí deberías obtener el nombre del perfil real
+        nompef: persona.idpef.to_string(),
+        emaper: persona.emaper.clone(),
     };
     let secret = std::env::var("JWT_SECRET")
         .map_err(|_| AppError::Unauthorized("JWT_SECRET no configurado".to_string()))?;

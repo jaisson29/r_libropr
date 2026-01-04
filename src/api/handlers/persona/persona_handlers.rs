@@ -5,10 +5,7 @@ use axum::{
 use std::sync::Arc;
 
 use crate::{
-    api::middleware::AuthUser,
-    core::models::Persona,
-    errors::{AppError, AppResult},
-    infra::AppState,
+    domain::{AuthUser, Persona}, errors::{AppError, AppResult}, infra::AppState
 };
 
 /// GET /api/v1/persona/:idper
@@ -51,6 +48,9 @@ pub async fn list_personas(
         // o asumimos que idpef 1 = super_admin
         personas.retain(|p| p.idpef != 1); // Ajusta el ID según tu base de datos
     }
+
+    tracing::info!("Usuario {} listó personas", auth_user.nomper);
+    tracing::info!("Usuario {:?}", auth_user);
 
     Ok(Json(personas))
 }

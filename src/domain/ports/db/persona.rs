@@ -1,7 +1,6 @@
 /// Puerto para operaciones CRUD de Persona
 /// Define el contrato que cualquier repositorio de Persona debe cumplir
-use crate::core::models::Persona;
-use crate::errors::AppError;
+use crate::{domain::Persona, errors::AppError};
 
 #[async_trait::async_trait]
 pub trait PersonaRepository: Send + Sync {

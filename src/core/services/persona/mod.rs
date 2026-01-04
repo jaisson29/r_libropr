@@ -1,19 +1,16 @@
 use std::sync::Arc;
 
-use crate::{
-    core::{models::Persona, ports::persona::PersonaRepository},
-    errors::AppError,
-};
+use crate::{domain::{Persona, db::PersonaRepository}, errors::AppError};
 
 /// Servicio de dominio para Persona
 /// Contiene la lógica de negocio y orquesta operaciones del repositorio
 pub struct PersonaService {
-    repo: Arc<dyn PersonaRepository>,
+    persona_repository: Arc<dyn PersonaRepository>,
 }
 
 impl PersonaService {
-    pub fn new(repo: Arc<dyn PersonaRepository>) -> Self {
-        Self { repo }
+    pub fn new(persona_repository: Arc<dyn PersonaRepository>) -> Self {
+        Self { persona_repository }
     }
 
     /// Listar personas con paginación
@@ -23,22 +20,22 @@ impl PersonaService {
             return Err(AppError::BadRequest("Límite máximo de 1000 registros".to_string()));
         }
         
-        self.repo.get_all(limit, offset).await
+        self.persona_repository.get_all(limit, offset).await
     }
 
     /// Obtener persona por ID
     pub async fn get_by_id(&self, idper: i64) -> Result<Option<Persona>, AppError> {
-        self.repo.get_by_idper(idper).await
+        self.persona_repository.get_by_idper(idper).await
     }
 
     /// Obtener persona por documento
     pub async fn get_by_document(&self, ndocper: &str) -> Result<Option<Persona>, AppError> {
-        self.repo.get_by_ndocper(ndocper).await
+        self.persona_repository.get_by_ndocper(ndocper).await
     }
 
     /// Obtener persona por email
     pub async fn get_by_email(&self, emaper: &str) -> Result<Option<Persona>, AppError> {
-        self.repo.get_by_emaper(emaper).await
+        self.persona_repository.get_by_emaper(emaper).await
     }
 
     /// Crear nueva persona
@@ -57,11 +54,11 @@ impl PersonaService {
         }
 
         // Verificar si el email ya existe
-        if let Some(_) = self.repo.get_by_emaper(&persona.emaper).await? {
+        if let Some(_) = self.persona_repository.get_by_emaper(&persona.emaper).await? {
             return Err(AppError::BadRequest("El email ya está registrado".to_string()));
         }
 
-        self.repo.create(persona).await
+        self.persona_repository.create(persona).await
     }
 
     /// Actualizar persona
@@ -74,26 +71,26 @@ impl PersonaService {
             return Err(AppError::BadRequest("El nombre es requerido".to_string()));
         }
 
-        self.repo.update(idper, persona).await
+        self.persona_repository.update(idper, persona).await
     }
 
     /// Eliminar persona (soft delete)
     pub async fn delete(&self, idper: i64) -> Result<(), AppError> {
         // Verificar que existe
-        if !self.repo.exists(idper).await? {
+        if !self.persona_repository.exists(idper).await? {
             return Err(AppError::NotFound("Persona no encontrada".to_string()));
         }
 
-        self.repo.delete(idper).await
+        self.persona_repository.delete(idper).await
     }
 
     /// Listar personas activas
     pub async fn list_active(&self, limit: i64, offset: i64) -> Result<Vec<Persona>, AppError> {
-        self.repo.get_active(limit, offset).await
+        self.persona_repository.get_active(limit, offset).await
     }
 
     /// Contar total de personas
     pub async fn count(&self) -> Result<i64, AppError> {
-        self.repo.count().await
+        self.persona_repository.count().await
     }
 }

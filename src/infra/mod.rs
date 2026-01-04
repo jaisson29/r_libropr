@@ -3,13 +3,15 @@ pub mod adapters;
 use std::{sync::Arc, fmt::Debug};
 use sqlx::PgPool;
 
-use crate::core::ports::persona::PersonaRepository;
 use crate::core::services::persona::PersonaService;
-use crate::infra::adapters::PersonaRepositoryPg;
+use crate::core::services::permission::PermissionService;
+use crate::domain::db::{PagperRepository, PersonaRepository};
+use crate::infra::adapters::db::postgres::{PersonaRepositoryPg, PagperRepositoryPg};
 
 /// Agregador de repositorios para inyección de dependencias
 pub struct Repos {
     pub persona: Arc<dyn PersonaRepository>,
+    pub pagper: Arc<dyn PagperRepository>,
     // Agregar más repos aquí conforme crezca el proyecto
 }
 
@@ -23,6 +25,7 @@ impl Clone for Repos {
     fn clone(&self) -> Self {
         Self {
             persona: self.persona.clone(),
+            pagper: self.pagper.clone(),
         }
     }
 }
@@ -30,6 +33,7 @@ impl Clone for Repos {
 /// Agregador de servicios para inyección de dependencias
 pub struct Services {
     pub persona: Arc<PersonaService>,
+    pub permission: Arc<PermissionService>,
     // Agregar más servicios aquí conforme crezca el proyecto
 }
 
@@ -43,6 +47,7 @@ impl Clone for Services {
     fn clone(&self) -> Self {
         Self {
             persona: self.persona.clone(),
+            permission: self.permission.clone(),
         }
     }
 }
@@ -61,16 +66,20 @@ impl AppState {
     pub fn new(db: PgPool, jwt_secret: String) -> Self {
         // 1. Construir repositorios
         let persona_repo = Arc::new(PersonaRepositoryPg::new(db.clone())) as Arc<dyn PersonaRepository>;
+        let pagper_repo = Arc::new(PagperRepositoryPg::new(db.clone())) as Arc<dyn PagperRepository>;
         
         let repos = Arc::new(Repos {
             persona: persona_repo.clone(),
+            pagper: pagper_repo.clone(),
         });
 
         // 2. Construir servicios inyectando repos
         let persona_service = Arc::new(PersonaService::new(persona_repo));
+        let permission_service = Arc::new(PermissionService::new(pagper_repo));
         
         let services = Arc::new(Services {
             persona: persona_service,
+            permission: permission_service,
         });
 
         // 3. Retornar AppState completo

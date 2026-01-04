@@ -1,9 +1,7 @@
 use sqlx::MySqlPool;
 
-use crate::{
-    core::{Persona, PersonaRepository},
-    errors::{AppError, AppResult},
-};
+use crate::errors::{AppError, AppResult};
+use crate::{domain::Persona, domain::db::PersonaRepository};
 
 pub struct PersonaRepositoryMySQL {
     db: MySqlPool,
